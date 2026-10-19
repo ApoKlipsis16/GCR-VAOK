@@ -104,6 +104,52 @@ document.addEventListener("DOMContentLoaded", async () => {
     `;
 
     $("#caso-recomendacion").textContent = caso.recomendacion;
+    
+    // CONSULTAS DEL USUARIO
+
+    const listaConsultas = $("#lista-consultas");
+
+    try {
+      const { data: consultas, error: errorConsultas } =
+        await window.gcrDB
+          .from("mensajes_contacto")
+          .select("asunto, mensaje, creado_en")
+          .eq("usuario_id", user.id)
+          .order("creado_en", { ascending: false });
+
+      if (errorConsultas) throw errorConsultas;
+
+      listaConsultas.replaceChildren();
+
+      if (!consultas || consultas.length === 0) {
+        listaConsultas.textContent =
+          "Todavía no has enviado ninguna consulta desde tu cuenta.";
+      } else {
+        consultas.forEach((consulta) => {
+          const tarjeta = document.createElement("article");
+          tarjeta.className = "finding-card";
+
+          const titulo = document.createElement("h4");
+          titulo.textContent = consulta.asunto || "Consulta general";
+
+          const fecha = document.createElement("p");
+          fecha.textContent = "Enviada: " +
+            new Date(consulta.creado_en).toLocaleDateString("es-PE");
+
+          const contenido = document.createElement("p");
+          contenido.textContent = consulta.mensaje;
+
+          tarjeta.append(titulo, fecha, contenido);
+          listaConsultas.appendChild(tarjeta);
+        });
+      }
+
+    } catch (error) {
+      console.error("Error al cargar consultas:", error);
+      listaConsultas.textContent =
+        "No se pudieron cargar tus consultas.";
+    }
+
 
   } catch (error) {
     console.error(error);
