@@ -1,6 +1,7 @@
 // 1. SELECCIONAR LOS ELEMENTOS
 const formulario = document.getElementById("registro-form");
 const nombre = document.getElementById("nombre");
+const empresa = document.getElementById("empresa");
 const correo = document.getElementById("email");
 const contrasena = document.getElementById("password");
 const repeticion = document.getElementById("password2");
@@ -11,7 +12,7 @@ const mensaje = document.getElementById("form-status");
 const barras = document.querySelectorAll("#strength i");
 const nivelTexto = document.getElementById("strength-label");
 
-const campos = [nombre, correo, contrasena, repeticion, terminos];
+const campos = [nombre, correo, empresa, contrasena, repeticion, terminos];
 
 // Conectar los campos con sus mensajes de error.
 campos.forEach(function (campo) {
@@ -104,7 +105,7 @@ campos.forEach(function (campo) {
 
 
 // 5. VALIDAR EL FORMULARIO
-formulario.addEventListener("submit", function (evento) {
+formulario.addEventListener("submit", async function (evento) {
   evento.preventDefault();
 
   mensaje.textContent = "";
@@ -112,6 +113,11 @@ formulario.addEventListener("submit", function (evento) {
 
   nombre.value = nombre.value.trim();
   correo.value = correo.value.trim();
+  empresa.value = empresa.value.trim();
+
+if (empresa.value === "") {
+  mostrarError(empresa, "Escribe el nombre de tu empresa.");
+}
 
   if (nombre.value === "") {
     mostrarError(nombre, "Escribe tu nombre completo.");
@@ -151,7 +157,45 @@ formulario.addEventListener("submit", function (evento) {
     return;
   }
 
-  mensaje.textContent =
-    "Los campos cumplen las validaciones. Esta es una demostración: " +
-    "la cuenta todavía no se crea porque falta conectar el servidor.";
+ 
+if (!window.gcrDB) {
+  mensaje.textContent = "Error: no se pudo conectar con Supabase.";
+  return;
+}
+
+const boton = document.getElementById("submit-btn");
+
+boton.disabled = true;
+boton.classList.add("loading");
+mensaje.textContent = "Creando tu cuenta...";
+
+try {
+  const { data, error } = await window.gcrDB.auth.signUp({
+    email: correo.value,
+    password: contrasena.value,
+    options: {
+      data: {
+        nombre: nombre.value,
+        empresa: empresa.value
+      },
+      emailRedirectTo: new URL("login.html", window.location.href).href
+    }
+  });
+
+  if (error) throw error;
+
+  if (data.session) {
+    window.location.href = "panel.html";
+  } else {
+    mensaje.textContent =
+      "Registro solicitado. Revisa tu correo para confirmar tu cuenta.";
+  }
+
+} catch (error) {
+  mensaje.textContent = "Error al registrarse: " + error.message;
+} finally {
+  boton.disabled = false;
+  boton.classList.remove("loading");
+}
+
 });
