@@ -173,7 +173,7 @@ document.addEventListener("DOMContentLoaded", () => {
      ENVÍO DEL FORMULARIO
      ========================================= */
 
-  form.addEventListener("submit", (evento) => {
+  form.addEventListener("submit", async (evento) => {
     // Evita navegar con los datos personales en la URL.
     evento.preventDefault();
 
@@ -201,15 +201,67 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    // Aquí se incorporará la petición al servidor
-    // cuando exista un servicio real de recepción.
-    // No se borran los campos ni se simula un envío.
+    // GUARDAR CONSULTA EN SUPABASE
+
+    const boton = document.getElementById("submit-btn");
+    boton.disabled = true;
+    boton.classList.add("loading");
+
     if (estado) {
-      estado.textContent =
-        "Los campos están completos, pero el formulario aún no está " +
-        "conectado a un servicio de envío. Tu consulta no se ha enviado. " +
-        "Puedes usar el enlace de correo que aparece en esta página.";
+      estado.textContent = "Enviando consulta...";
     }
+
+    try {
+      if (!window.gcrDB) {
+        throw new Error("No se pudo conectar con Supabase.");
+      }
+
+      const { data, error: errorSesion } =
+        await window.gcrDB.auth.getSession();
+
+      if (errorSesion) throw errorSesion;
+
+      const usuarioId = data.session?.user?.id ?? null;
+
+      const { error } = await window.gcrDB
+        .from("mensajes_contacto")
+        .insert({
+          usuario_id: usuarioId,
+          nombre: nombre.value.trim(),
+          correo: email.value.trim(),
+          empresa: document.getElementById("empresa").value.trim(),
+          telefono: telefono.value.trim(),
+          interes: interes.value,
+          asunto: "Consulta desde la web",
+          tamano: document.getElementById("tamano").value,
+          mensaje: mensaje.value.trim()
+        });
+
+      if (error) throw error;
+
+      form.reset();
+
+      if (estado) {
+        estado.textContent =
+          "¡Tu consulta se guardó correctamente!";
+        estado.classList.add("success");
+      }
+
+    } catch (error) {
+      console.error("Error al enviar consulta:", error);
+
+      if (estado) {
+        estado.textContent =
+          "No se pudo enviar: " + error.message;
+        estado.classList.add("error");
+      }
+
+    } finally {
+      boton.disabled = false;
+      boton.classList.remove("loading");
+    }
+
+  
   });
 
   /* =========================================
