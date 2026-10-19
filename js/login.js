@@ -114,8 +114,45 @@ formulario.addEventListener("submit", async function (evento) {
   }
 
   mensaje.textContent =
-    "Formato de los datos correcto. Esta demostración no inicia sesión: " +
-    "todavía falta conectar el servidor." + aviso;
+   
+if (!window.gcrDB) {
+  mensaje.textContent = "No se pudo conectar con Supabase.";
+  return;
+}
+
+const boton = document.getElementById("submit-btn");
+
+boton.disabled = true;
+boton.classList.add("loading");
+mensaje.textContent = "Iniciando sesión...";
+
+try {
+  const { data, error } = await window.gcrDB.auth.signInWithPassword({
+    email: correo.value,
+    password: contrasena.value
+  });
+
+  if (error) throw error;
+
+  if (data.session) {
+    window.location.href = "panel.html";
+  } else {
+    mensaje.textContent = "No se pudo iniciar sesión.";
+  }
+
+} catch (error) {
+  if (error.message === "Invalid login credentials") {
+    mensaje.textContent = "Correo o contraseña incorrectos.";
+  } else if (error.message === "Email not confirmed") {
+    mensaje.textContent = "Primero confirma tu correo electrónico.";
+  } else {
+    mensaje.textContent = "Error: " + error.message;
+  }
+} finally {
+  boton.disabled = false;
+  boton.classList.remove("loading");
+}
+
 });
 
 
