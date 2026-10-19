@@ -57,7 +57,7 @@ recordar.addEventListener("change", function () {
 
 
 // 5. REVISAR LOS DATOS AL PRESIONAR INICIAR SESIÓN
-formulario.addEventListener("submit", function (evento) {
+formulario.addEventListener("submit", async function (evento) {
   evento.preventDefault();
 
   correo.value = correo.value.trim();
