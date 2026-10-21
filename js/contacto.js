@@ -237,14 +237,10 @@ document.addEventListener("DOMContentLoaded", () => {
           mensaje: mensaje.value.trim()
         });
 
-      if (error) throw error;
+     if (error) throw error;
 
-      form.reset();
-
-      if (estado) {
-        estado.textContent =
-          "¡Tu consulta se guardó correctamente!";
-        estado.classList.add("success");
+// Redirigir únicamente cuando Supabase confirma el registro.
+window.location.href = "solicitud-enviada.html";
       }
 
     } catch (error) {
