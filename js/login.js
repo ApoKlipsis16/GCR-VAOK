@@ -174,3 +174,33 @@ recuperar.addEventListener("click", function (evento) {
   mensaje.textContent =
     "La recuperación de contraseña aún no está disponible en esta demostración.";
 });
+// MOSTRAR Y OCULTAR CONTRASEÑA
+document.addEventListener("DOMContentLoaded", () => {
+  const clave = document.querySelector(
+    'input[autocomplete="current-password"], #password'
+  );
+
+  const boton = document.querySelector(
+    "#toggle-pass, .toggle-pass"
+  );
+
+  if (!clave || !boton) {
+    console.warn("No se encontró el control de contraseña.");
+    return;
+  }
+
+  boton.type = "button";
+
+  boton.addEventListener("click", () => {
+    const mostrar = clave.type === "password";
+
+    clave.type = mostrar ? "text" : "password";
+    boton.textContent = mostrar ? "Ocultar" : "Mostrar";
+
+    boton.setAttribute("aria-pressed", String(mostrar));
+    boton.setAttribute(
+      "aria-label",
+      mostrar ? "Ocultar contraseña" : "Mostrar contraseña"
+    );
+  });
+});
