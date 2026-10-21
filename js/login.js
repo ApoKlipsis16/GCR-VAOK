@@ -112,9 +112,6 @@ formulario.addEventListener("submit", async function (evento) {
   } catch (error) {
     aviso = " No se pudo actualizar el correo guardado.";
   }
-
-  mensaje.textContent =
-   
 if (!window.gcrDB) {
   mensaje.textContent = "No se pudo conectar con Supabase.";
   return;
