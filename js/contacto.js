@@ -241,8 +241,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // Redirigir únicamente cuando Supabase confirma el registro.
 window.location.href = "solicitud-enviada.html";
-      }
-
     } catch (error) {
       console.error("Error al enviar consulta:", error);
 
